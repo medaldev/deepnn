@@ -49,8 +49,18 @@ def predict(Xp):
 # как и раньше обучаем подавая по одному примеру и корректируем веса в случае ошибки
 n_iter=5
 eta = 0.01
+
+eps = 10
+
 for i in range(n_iter):
     Wout_prev = Wout.copy()
+    #pr_all =  hidden = predict(xi)
+    pr, hidden = predict(X)
+    err_count = abs(sum(pr-y.reshape(-1, 1)))
+    print(">>", i, "errs", err_count)
+    if err_count < eps:
+        print(f"Кол-во ошибок меньше {eps}. Обучение остановлено.")
+        break
     for xi, target, j in zip(X, y, range(X.shape[0])):
         pr, hidden = predict(xi) 
         Wout[1:] += ((eta * (target - pr)) * hidden).reshape(-1, 1)
@@ -58,7 +68,11 @@ for i in range(n_iter):
     if np.sum(Wout - Wout_prev) == 0:
         print("Веса больше не меняются. Обучение остановлено.")
         break
-print(list(Wout))
+
+
+
+
+#print(list(Wout))
 
 # посчитаем сколько ошибок делаем на всей выборке
 y = df.iloc[:, 4].values

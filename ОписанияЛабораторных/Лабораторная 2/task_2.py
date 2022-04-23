@@ -14,8 +14,10 @@ df = pd.read_csv('data.csv')
 # возьмем перые 100 строк, 4-й столбец
 y = df.iloc[0:200, 4].values
 # так как ответы у нас строки - нужно перейти к численным значениям
-
+cols = pd.get_dummies(y).columns
 y = pd.get_dummies(y).values
+
+print(y)
 
 print(y.shape)
 
@@ -51,19 +53,24 @@ for i in range(iterations):
         print("На итерации: " + str(i) + ' || ' + "Средняя ошибка: " + str(np.mean(np.square(y - net.predict(X)))))
 
 # считаем ошибку на обучающей выборке
-pr = net.predict(X)
+pr = net.predict(X[0])
+print(pr)
+
+
 print(sum(abs(y-(pr>0.5))))
 
 
 lr_auc = roc_auc_score(y_test, net.predict(X_test))
 
 print(lr_auc)
-
+print(cols)
 
 v = 0
 c = 0
+print("Прогноз", "Правильный ответ", "Результат сравнения")
 for a, b in zip(np.round(net.predict(X_test)), y_test):
     #print([list(a), list(b), list(a)==list(b)])
+    print([cols[list(a).index(1)] if 1 in a else "Не определён", cols[list(b).index(1)], "Верно" if list(a)==list(b) else "Неверно"])
     if list(a)==list(b):
         v += 1
     c += 1

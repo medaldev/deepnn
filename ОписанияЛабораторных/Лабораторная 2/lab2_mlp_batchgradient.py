@@ -8,6 +8,7 @@ Created on Thu Mar 11 20:29:37 2021
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import random
 
 df = pd.read_csv('data.csv')
 
@@ -93,10 +94,15 @@ def predict(x_values):
 iterations = 50
 learning_rate = 0.01
 
+print(X)
+
+
+
 # обучаем сеть (фактически сеть это вектор весов weights)
 for i in range(iterations):
     for j in range(len(X[0])):
-        train(X[j].reshape(1, 3), y[j].reshape(1, 1), learning_rate)
+        k = random.randint(0, len(X) -1)
+        train(X[k].reshape(1, 3), y[k].reshape(1, 1), learning_rate)
 
 
     # train(X, y, learning_rate)
