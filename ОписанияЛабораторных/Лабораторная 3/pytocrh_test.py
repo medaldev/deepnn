@@ -63,10 +63,15 @@ res_loss = train(net, torch.from_numpy(X.astype(np.float32)), torch.from_numpy(y
 res_loss2 = train(net2, torch.from_numpy(X.astype(np.float32)), torch.from_numpy(y.astype(np.float32)), 500, nn.MSELoss(), torch.optim.SGD(net2.parameters(), lr=0.001))
 
 import matplotlib.pyplot as plt
+
 with torch.no_grad():
-    pred = net.forward(torch.from_numpy(X.astype(np.float32)))
-    for res in pred:
-        print(int(res))
+
+    print(list(np.where(np.array(net.forward(torch.from_numpy(X.astype(np.float32)))) == 1, "Iris-setosa", "Not Iris-setosa")))
+    print(list(np.where(np.array(net2.forward(torch.from_numpy(X.astype(np.float32)))) == 1, "Iris-setosa", "Not Iris-setosa")))
+
+    print("Errors from 1 model", np.sum(np.abs(np.round(np.array(net.forward(torch.from_numpy(X.astype(np.float32))))) - np.round(y.astype(np.float32)))))
+    print("Errors from 2 model", np.sum(np.abs(np.round(np.array(net2.forward(torch.from_numpy(X.astype(np.float32))))) - np.round(y.astype(np.float32)))))
+
 
 # torch.save(net.state_dict(), "./net.pth")
 
