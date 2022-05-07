@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
-
+from neural import MLPptorch2
 
 import torch.nn as nn
 
@@ -28,15 +28,18 @@ class Perceptron(nn.Module):
         return self.layers(x)
 
 # функция обучения
-def train(x, y, num_iter):
+def train(net, x, y, num_iter, lossFn, optimizer):
+    losses_values = []
     for i in range(0,num_iter):
         pred = net.forward(x)
         loss = lossFn(pred, y)
         loss.backward()
         optimizer.step()
         if i%100==0:
-           print('Ошибка на ' + str(i+1) + ' итерации: ', loss.item())
-    return loss.item()
+           l = loss.item()
+           print('Ошибка на ' + str(i+1) + ' итерации: ', l)
+        losses_values.append(l)
+    return losses_values
 
 
 # теперь можно использовать созданный класс на практике
@@ -48,18 +51,26 @@ y = df.iloc[0:100, 4].values
 y = np.where(y == "Iris-setosa", 1, 0).reshape(-1,1)
 X = df.iloc[0:100, 0:3].values
 
+
 inputSize = X.shape[1] # количество входных сигналов равно количеству признаков задачи
 hiddenSizes = 10 # задаем число нейронов скрытого (А) слоя
 outputSize = 1 if len(y.shape) else y.shape[1] # количество выходных сигналов равно количеству классов задачи
 
-net = Perceptron(inputSize,hiddenSizes,outputSize, hidden_count=3, afuncs=[nn.ReLU(), nn.ReLU(), nn.ReLU(), nn.Sigmoid()])
-lossFn = nn.MSELoss()
-optimizer = torch.optim.SGD(net.parameters(), lr=0.001)
+net = MLPptorch2(inputSize, hiddenSizes, outputSize, 3)
+net2 = MLPptorch2(inputSize, hiddenSizes, outputSize, 3, nn.Sigmoid)
 
-loss_ = train(torch.from_numpy(X.astype(np.float32)), torch.from_numpy(y.astype(np.float32)), 1000)
+res_loss = train(net, torch.from_numpy(X.astype(np.float32)), torch.from_numpy(y.astype(np.float32)),500, nn.MSELoss(), torch.optim.SGD(net.parameters(), lr=0.001))
+res_loss2 = train(net2, torch.from_numpy(X.astype(np.float32)), torch.from_numpy(y.astype(np.float32)), 500, nn.MSELoss(), torch.optim.SGD(net2.parameters(), lr=0.001))
 
-pred = net.forward(torch.from_numpy(X.astype(np.float32)))
-#for name, param in net.named_parameters():
-#    print(name, param)
+import matplotlib.pyplot as plt
+with torch.no_grad():
+    pred = net.forward(torch.from_numpy(X.astype(np.float32)))
+    for res in pred:
+        print(int(res))
 
 # torch.save(net.state_dict(), "./net.pth")
+
+plt.plot(res_loss, label="Relu model")
+plt.plot(res_loss2, label="Sigmoid model")
+plt.legend()
+plt.show()

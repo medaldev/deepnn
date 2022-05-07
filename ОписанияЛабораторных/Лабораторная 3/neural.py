@@ -113,3 +113,30 @@ class MLPptorch(nn.Module):
         return self.layers(x)
 
 
+class MLPptorch2(nn.Module):
+    # как и раньше для инициализации на вход нужно подать размеры входного, скрытого и выходного слоев
+    def __init__(self, in_size, hidden_size, out_size, hidden_count, actfunc=None):
+
+        nn.Module.__init__(self)
+        # nn.Sequential - контейнер модулей
+        # он последовательно объединяет и позволяет запускать их одновременно
+
+        if not actfunc:
+            actfunc = nn.ReLU
+
+
+        layers = [nn.Linear(in_size, hidden_size),  # слой линейных сумматоров
+                  actfunc()]
+        for i in range(hidden_count):
+            layers += [nn.Linear(hidden_size, hidden_size), actfunc()]
+
+        layers += [nn.Linear(hidden_size, out_size), nn.Sigmoid()]
+        self.layers = nn.Sequential(*layers)
+
+    # прямой проход
+    def forward(self, x):
+        return self.layers(x)
+
+
+
+
